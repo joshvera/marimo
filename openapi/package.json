@@ -1,5 +1,5 @@
 {
-  "name": "@marimo-team/marimo-api",
+  "name": "@joshvera/marimo-api",
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
