@@ -1,4 +1,5 @@
 # Data files, images
+openapi/node_modules/
 *.csv
 *.pdf
 *.txt

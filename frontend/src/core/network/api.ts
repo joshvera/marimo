@@ -3,7 +3,7 @@ import { once } from "@/utils/once";
 import { Logger } from "../../utils/Logger";
 import { getMarimoServerToken } from "../dom/marimo-tag";
 import { getSessionId } from "../kernel/session";
-import { createMarimoClient } from "@marimo-team/marimo-api";
+import { createMarimoClient } from "@joshvera/marimo-api";
 
 const getServerTokenOnce = once(() => {
   return getMarimoServerToken();

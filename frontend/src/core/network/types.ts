@@ -1,8 +1,8 @@
 /* Copyright 2024 Marimo. All rights reserved. */
-import { paths, type components } from "@marimo-team/marimo-api";
+import { paths, type components } from "@joshvera/marimo-api";
 import { CellId } from "../cells/ids";
 
-export type schemas = components["schemas"];
+type schemas = components["schemas"];
 export type AiCompletionRequest = schemas["AiCompletionRequest"];
 export type AppMetadata = schemas["AppMetadata"];
 export type BaseResponse = schemas["BaseResponse"];
