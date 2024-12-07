@@ -4,6 +4,7 @@ import { Logger } from "../../utils/Logger";
 import { getMarimoServerToken } from "../dom/marimo-tag";
 import { getSessionId } from "../kernel/session";
 import { createMarimoClient } from "@joshvera/marimo-api";
+import { log } from "node:console";
 
 const getServerTokenOnce = once(() => {
   return getMarimoServerToken();
@@ -14,7 +15,7 @@ const getServerTokenOnce = once(() => {
  * strong types.
  */
 export const API = {
-  post<REQ, RESP = null>(
+  async post<REQ, RESP = null>(
     url: string,
     body: REQ,
     opts: {
@@ -24,11 +25,17 @@ export const API = {
   ): Promise<RESP> {
     const baseUrl = opts.baseUrl ?? document.baseURI;
     const fullUrl = `${baseUrl}api${url}`;
+    const newHeaders: Record<string, string> = {};
+    const headers = API.headers()
+    newHeaders["Marimo-Session-Id"] = headers["Marimo-Session-Id"]
+    newHeaders["Marimo-Server-Token"] = await headers["Marimo-Server-Token"]
+    log("newHeaders", newHeaders)
+
     return fetch(fullUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...API.headers(),
+        ...newHeaders,
         ...opts.headers,
       },
       body: JSON.stringify(body),
@@ -54,7 +61,7 @@ export const API = {
         throw error;
       });
   },
-  get<RESP = null>(
+  async get<RESP = null>(
     url: string,
     opts: {
       headers?: Record<string, string>;
@@ -63,10 +70,14 @@ export const API = {
   ): Promise<RESP> {
     const baseUrl = opts.baseUrl ?? document.baseURI;
     const fullUrl = `${baseUrl}api${url}`;
+    const newHeaders: Record<string, string> = {};
+    const headers = API.headers()
+    newHeaders["Marimo-Session-Id"] = headers["Marimo-Session-Id"]
+    newHeaders["Marimo-Server-Token"] = await headers["Marimo-Server-Token"]
     return fetch(fullUrl, {
       method: "GET",
       headers: {
-        ...API.headers(),
+        ...newHeaders,
         ...opts.headers,
       },
     })
@@ -120,9 +131,13 @@ export const marimoClient = createMarimoClient({
 });
 
 marimoClient.use({
-  onRequest: (req) => {
+  onRequest: async (req) => {
+    log("req", req)
     for (const [key, value] of Object.entries(API.headers())) {
-      req.headers.set(key, value);
+      log("header", key)
+      const resolvedValue = await Promise.resolve(value);
+      log("resolvedValue", resolvedValue)
+      req.headers.set(key, resolvedValue);
     }
     return req;
   },

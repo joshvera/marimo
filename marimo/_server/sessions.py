@@ -462,6 +462,7 @@ class Session:
 
     def put_input(self, text: str) -> None:
         """Put an input() request in the input queue."""
+        print("put_input: ", text)
         self._queue_manager.input_queue.put(text)
         self.session_view.add_stdin(text)
 
@@ -630,25 +631,29 @@ class SessionManager:
         )
 
     def create_session(
-        self,
-        session_id: SessionId,
-        session_consumer: SessionConsumer,
-        query_params: SerializedQueryParams,
-        file_key: MarimoFileKey,
-    ) -> Session:
+    self,
+    session_id: SessionId,
+    session_consumer: SessionConsumer,
+    query_params: SerializedQueryParams,
+    file_key: MarimoFileKey,
+) -> Session:
         """Create a new session"""
         LOGGER.debug("Creating new session for id %s", session_id)
+        
         if session_id not in self.sessions:
+            LOGGER.debug("Session %s does not exist, creating new session", session_id)
+            
             app_file_manager = self.file_router.get_file_manager(
                 file_key,
-                default_width=self.user_config_manager.get_config()["display"][
-                    "default_width"
-                ],
+                default_width=self.user_config_manager.get_config()["display"]["default_width"],
             )
-
+            LOGGER.debug("Created app_file_manager for file_key %s", file_key)
+            
             if app_file_manager.path:
+                LOGGER.debug("Touching recent file: %s", app_file_manager.path)
                 self.recents.touch(app_file_manager.path)
-
+            
+            LOGGER.debug("Initializing new Session object")
             self.sessions[session_id] = Session.create(
                 initialization_id=file_key,
                 session_consumer=session_consumer,
@@ -662,6 +667,11 @@ class SessionManager:
                 user_config_manager=self.user_config_manager,
                 virtual_files_supported=True,
             )
+            LOGGER.debug("New Session object created and added to sessions dictionary")
+        else:
+            LOGGER.debug("Session %s already exists", session_id)
+        
+        LOGGER.debug("Returning session for id %s", session_id)
         return self.sessions[session_id]
 
     def get_session(self, session_id: SessionId) -> Optional[Session]:

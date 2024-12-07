@@ -4,8 +4,8 @@ import { invariant } from "@/utils/invariant";
 import { isIslands } from "@/core/islands/utils";
 
 interface MarimoSettings {
-  getMarimoVersion: () => string;
-  getMarimoServerToken: () => string;
+  getMarimoVersion: () => Promise<string>;
+  getMarimoServerToken: () => Promise<string>;
   getMarimoAppConfig: () => unknown;
   getMarimoUserConfig: () => unknown;
   getMarimoCode: () => string;
@@ -19,10 +19,10 @@ const domBasedMarimoSettings: MarimoSettings = {
     return getMarimoDOMValue("marimo-server-token", "token");
   },
   getMarimoAppConfig: () => {
-    return JSON.parse(getMarimoDOMValue("marimo-app-config", "config"));
+    return {}
   },
   getMarimoUserConfig: () => {
-    return JSON.parse(getMarimoDOMValue("marimo-user-config", "config"));
+    return {}
   },
   getMarimoCode: () => {
     const tag = document.querySelector("marimo-code");
@@ -59,8 +59,13 @@ export const {
   getMarimoCode,
 } = isIslands() ? islandsBasedMarimoSettings : domBasedMarimoSettings;
 
-function getMarimoDOMValue(tagName: string, key: string) {
-  const tag = document.querySelector(tagName);
+async function getMarimoDOMValue(tagName: string, key: string) {
+  const response = await fetch("http://localhost:2718");
+  const html = await response.text();
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+
+  const tag = doc.querySelector(tagName);
   invariant(
     tag !== null && tag instanceof HTMLElement,
     `internal-error: ${tagName} tag not found`,

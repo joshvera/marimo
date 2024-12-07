@@ -125,6 +125,7 @@ class AppFileManager:
 
     def _load_app(self, path: Optional[str]) -> InternalApp:
         """Read the app from the file."""
+        LOGGER.info("Loading app from %s", path)
         app = codegen.get_app(path)
         if app is None:
             kwargs = (
@@ -134,11 +135,6 @@ class AppFileManager:
                 else {}
             )
             empty_app = InternalApp(App(**kwargs))
-            empty_app.cell_manager.register_cell(
-                cell_id=None,
-                code="",
-                config=CellConfig(),
-            )
             return empty_app
         return InternalApp(app)
 

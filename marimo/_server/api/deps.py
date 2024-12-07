@@ -126,6 +126,7 @@ class AppState(AppStateBase):
     def require_current_session(self) -> Session:
         """Get the current session or raise an error."""
         session_id = self.require_current_session_id()
+        LOGGER.debug("Current session id: %s", session_id)
         session = self.session_manager.get_session(session_id)
         if session is None:
             LOGGER.warning(

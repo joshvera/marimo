@@ -1491,6 +1491,10 @@ def launch_kernel(
         if is_edit_mode
         else None
     )
+    
+    def enqueue_control_request(req: ControlRequest) -> None:
+        print(f"enqueueing control request {req}")
+        control_queue.put_nowait(req)
 
     kernel = Kernel(
         cell_configs=configs,
@@ -1502,7 +1506,7 @@ def launch_kernel(
         input_override=input_override,
         debugger_override=debugger,
         user_config=user_config,
-        enqueue_control_request=lambda req: control_queue.put_nowait(req),
+        enqueue_control_request=enqueue_control_request,
     )
     initialize_kernel_context(
         kernel=kernel,

@@ -1,4 +1,5 @@
 /* Copyright 2024 Marimo. All rights reserved. */
+import { log } from "node:console";
 import { API, marimoClient } from "./api";
 import type { RunRequests, EditRequests } from "./types";
 
@@ -58,6 +59,7 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         .then(handleResponseReturnNull);
     },
     sendRun: (request) => {
+      log("sendRun", request);
       return marimoClient
         .POST("/api/kernel/run", {
           body: request,

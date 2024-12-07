@@ -208,6 +208,7 @@ class App:
         self._unparsable = True
 
     def _maybe_initialize(self) -> None:
+        print("maybe_initialize")
         if self._unparsable:
             raise RuntimeError(
                 "This notebook has cells with syntax errors, "
@@ -219,6 +220,7 @@ class App:
 
         # Add cells to graph
         for cell_id, cell in self._cell_manager.valid_cells():
+            print("Adding cell_id to graph: ", cell_id)
             self._graph.register_cell(cell_id, cell._cell)
         self._defs = self._graph.definitions.keys()
 
@@ -523,6 +525,7 @@ class CellManager:
         app: InternalApp | None = None,
     ) -> Cell | Callable[..., Cell]:
         cell_config = CellConfig(disabled=disabled, hide_code=hide_code)
+        print("cell_decorator cell_config: ", cell_config)
 
         def _register(func: Callable[..., Any]) -> Cell:
             cell = cell_factory(func, cell_id=self.create_cell_id())
@@ -580,6 +583,7 @@ class CellManager:
         name: Optional[str],
         cell_config: CellConfig,
     ) -> None:
+        print("Registering unparsable cell:", code)
         # - code.split("\n")[1:-1] disregards first and last lines, which are
         #   empty
         # - line[4:] removes leading indent in multiline string

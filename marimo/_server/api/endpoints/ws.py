@@ -151,34 +151,36 @@ class WebsocketHandler(SessionConsumer):
         file_manager = session.app_file_manager
         app = file_manager.app
 
-        codes: tuple[str, ...]
-        names: tuple[str, ...]
-        configs: tuple[CellConfig, ...]
+        codes: tuple[str, ...] = ()
+        names: tuple[str, ...] = ()
+        configs: tuple[CellConfig, ...] = ()
+        cell_ids: tuple[CellId_t, ...] = ()
 
-        if mgr.should_send_code_to_frontend():
-            codes, names, configs, cell_ids = tuple(
-                zip(
-                    *tuple(
-                        (
-                            cell_data.code,
-                            cell_data.name,
-                            cell_data.config,
-                            cell_data.cell_id,
+        if len(app.cell_manager.cell_data()) > 0:
+            if mgr.should_send_code_to_frontend():
+                codes, names, configs, cell_ids = tuple(
+                    zip(
+                        *tuple(
+                            (
+                                cell_data.code,
+                                cell_data.name,
+                                cell_data.config,
+                                cell_data.cell_id,
+                            )
+                            for cell_data in app.cell_manager.cell_data()
                         )
-                        for cell_data in app.cell_manager.cell_data()
                     )
                 )
-            )
-        else:
-            codes, names, configs, cell_ids = tuple(
-                zip(
-                    *tuple(
-                        # Don't send code to frontend in run mode
-                        ("", "", cell_data.config, cell_data.cell_id)
-                        for cell_data in app.cell_manager.cell_data()
+            else:
+                codes, names, configs, cell_ids = tuple(
+                    zip(
+                        *tuple(
+                            # Don't send code to frontend in run mode
+                            ("", "", cell_data.config, cell_data.cell_id)
+                            for cell_data in app.cell_manager.cell_data()
+                        )
                     )
                 )
-            )
 
             last_executed_code = {}
             last_execution_time = {}
@@ -458,6 +460,8 @@ class WebsocketHandler(SessionConsumer):
         async def listen_for_messages() -> None:
             while True:
                 (op, data) = await self.message_queue.get()
+                LOGGER.debug("Sending message %s", op)
+                LOGGER.debug("Sending data %s", data)
 
                 if op in KIOSK_ONLY_OPERATIONS and not self.kiosk:
                     LOGGER.debug(
