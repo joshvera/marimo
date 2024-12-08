@@ -4,7 +4,8 @@ import { Logger } from "../../utils/Logger";
 import { getMarimoServerToken } from "../dom/marimo-tag";
 import { getSessionId } from "../kernel/session";
 import { createMarimoClient } from "@joshvera/marimo-api";
-import { log } from "node:console";
+import { Logger as logger } from "../../utils/Logger";
+
 
 const getServerTokenOnce = once(() => {
   return getMarimoServerToken();
@@ -29,7 +30,7 @@ export const API = {
     const headers = API.headers()
     newHeaders["Marimo-Session-Id"] = headers["Marimo-Session-Id"]
     newHeaders["Marimo-Server-Token"] = await headers["Marimo-Server-Token"]
-    log("newHeaders", newHeaders)
+    logger.log("newHeaders", newHeaders)
 
     return fetch(fullUrl, {
       method: "POST",
@@ -132,11 +133,11 @@ export const marimoClient = createMarimoClient({
 
 marimoClient.use({
   onRequest: async (req) => {
-    log("req", req)
+    logger.log("req", req)
     for (const [key, value] of Object.entries(API.headers())) {
-      log("header", key)
+      logger.log("header", key)
       const resolvedValue = await Promise.resolve(value);
-      log("resolvedValue", resolvedValue)
+      logger.log("resolvedValue", resolvedValue)
       req.headers.set(key, resolvedValue);
     }
     return req;

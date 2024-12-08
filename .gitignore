@@ -1,4 +1,6 @@
 # Data files, images
+.pdm-python
+
 openapi/node_modules/
 *.csv
 *.pdf

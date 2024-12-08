@@ -1,4 +1,3 @@
-# Use Python 3.10 as it's well within the supported range (>=3.8)
 FROM python:3.10-slim
 
 # System dependencies (for building Python packages)
@@ -21,4 +20,4 @@ RUN pip install -e .[testcore]
 EXPOSE 2718
 
 # Default command that will be overridden in the test
-CMD ["python", "-m", "marimo", "serve", "--port", "2718"]
+CMD ["python", "-m", "marimo", "edit", "--port", "2718", "--host", "0.0.0.0", "--headless"]
